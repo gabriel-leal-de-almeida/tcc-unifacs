@@ -1,0 +1,33 @@
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v3
+
+      - name: 'Setup Terraform'
+        uses: hashicorp/setup-terraform@v2
+
+      - name: 'Authenticate to Google Cloud'
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: 'Initialize Terraform'
+        run: terraform init
+
+      - name: 'Terraform Plan'
+        run: terraform plan -out=tfplan -var "project_id=${{ secrets.GCP_PROJECT_ID }}" -var "region=${{ secrets.GCP_REGION }}" -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}"
+
+      - name: 'Terraform Apply'
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -input=false tfplan
