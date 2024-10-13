@@ -23,17 +23,9 @@ resource "null_resource" "zip_scripts" {
   provisioner "local-exec" {
     command = <<EOT
       mkdir -p ${path.module}/zips
-      cp ${path.module}/${var.functions_scripts_folder}/start_process_data.py ${path.module}/${var.functions_scripts_folder}/main.py
-      zip -j ${path.module}/zips/start_process_data.zip ${path.module}/${var.functions_scripts_folder}/main.py
-      rm ${path.module}/${var.functions_scripts_folder}/main.py
-
-      cp ${path.module}/${var.functions_scripts_folder}/start_read_data.py ${path.module}/${var.functions_scripts_folder}/main.py
-      zip -j ${path.module}/zips/start_read_data.zip ${path.module}/${var.functions_scripts_folder}/main.py
-      rm ${path.module}/${var.functions_scripts_folder}/main.py
-
-      cp ${path.module}/${var.functions_scripts_folder}/start_collect_metrics.py ${path.module}/${var.functions_scripts_folder}/main.py
-      zip -j ${path.module}/zips/start_collect_metrics.zip ${path.module}/${var.functions_scripts_folder}/main.py
-      rm ${path.module}/${var.functions_scripts_folder}/main.py
+      zip -j ${path.module}/zips/start_process_data.zip ${path.module}/${var.functions_scripts_folder}/start_process_data/main.py
+      zip -j ${path.module}/zips/start_read_data.zip ${path.module}/${var.functions_scripts_folder}/start_read_data/main.py
+      zip -j ${path.module}/zips/start_collect_metrics.zip ${path.module}/${var.functions_scripts_folder}/start_collect_metrics/main.py
     EOT
   }
 }
