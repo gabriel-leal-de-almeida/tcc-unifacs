@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   terraform:
-    name: 'Terraform Apply'
+    name: 'Terraform Plan and Apply'
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +26,28 @@ jobs:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - name: 'Initialize Terraform'
-        run: terraform init
+        run: terraform init -backend-config="bucket=${{ secrets.GCS_BUCKET_NAME }}" -backend-config="prefix=terraform/state"
 
-      - name: 'Terraform Plan'
-        run: terraform plan -out=tfplan -var "project_id=${{ secrets.GCP_PROJECT_ID }}" -var "region=${{ secrets.GCP_REGION }}" -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}"
+      - name: 'Validate Terraform'
+        run: terraform validate
+
+      - name: 'Terraform Plan (Pull Request)'
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform plan \
+            -var "project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var "region=${{ secrets.GCP_REGION }}" \
+            -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}" \
+            -lock=false
+
+      - name: 'Terraform Plan (Push to Main)'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          terraform plan -out=tfplan \
+            -var "project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var "region=${{ secrets.GCP_REGION }}" \
+            -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}"
 
       - name: 'Terraform Apply'
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: terraform apply -input=false tfplan

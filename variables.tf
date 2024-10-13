@@ -9,7 +9,3 @@ variable "region" {
 variable "bucket_name" {
   type = string
 }
-
-variable "dataproc_service_account" {
-  type = string
-}

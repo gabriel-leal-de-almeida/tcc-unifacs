@@ -24,8 +24,5 @@ resource "google_project_service" "storage" {
 
 # Configure the Terraform backend
 terraform {
-  backend "gcs" {
-    bucket  = var.bucket_name
-    prefix  = "terraform/state"
-  }
+  backend "gcs" {} # Backend configuration passed through GitHub Actions + GitHub Secrets
 }
