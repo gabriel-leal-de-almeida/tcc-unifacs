@@ -17,17 +17,22 @@ resource "google_storage_bucket_object" "collect_metrics_functions_script" {
   source = "${path.module}/${var.functions_scripts_folder}/collect_metrics.py"
 }
 
-# Upload scripts to GCS
-# Zip the scripts using local-exec provisioner
-resource "null_resource" "zip_scripts" {
-  provisioner "local-exec" {
-    command = <<EOT
-      mkdir -p ${path.module}/zips
-      zip -j ${path.module}/zips/start_process_data.zip ${path.module}/${var.functions_scripts_folder}/start_process_data/main.py
-      zip -j ${path.module}/zips/start_read_data.zip ${path.module}/${var.functions_scripts_folder}/start_read_data/main.py
-      zip -j ${path.module}/zips/start_collect_metrics.zip ${path.module}/${var.functions_scripts_folder}/start_collect_metrics/main.py
-    EOT
-  }
+data "archive_file" "start_process_data_functions_script_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/${var.functions_scripts_folder}/start_process_data"
+  output_path = "${path.module}/zips/start_process_data.zip"
+}
+
+data "archive_file" "start_read_data_functions_script_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/${var.functions_scripts_folder}/start_read_data"
+  output_path = "${path.module}/zips/start_read_data.zip"
+}
+
+data "archive_file" "start_collect_metrics_functions_script_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/${var.functions_scripts_folder}/start_collect_metrics"
+  output_path = "${path.module}/zips/start_collect_metrics.zip"
 }
 
 # Upload zipped scripts to GCS
@@ -35,19 +40,19 @@ resource "google_storage_bucket_object" "start_process_data_functions_script" {
   name   = "${var.functions_scripts_folder}start_process_data.zip"
   bucket = var.bucket_name
   source = "${path.module}/zips/start_process_data.zip"
-  depends_on = [null_resource.zip_scripts]
+  depends_on = [data.archive_file.start_process_data_functions_script_zip]
 }
 
 resource "google_storage_bucket_object" "start_read_data_functions_script" {
   name   = "${var.functions_scripts_folder}start_read_data.zip"
   bucket = var.bucket_name
   source = "${path.module}/zips/start_read_data.zip"
-  depends_on = [null_resource.zip_scripts]
+  depends_on = [data.archive_file.start_read_data_functions_script_zip]
 }
 
 resource "google_storage_bucket_object" "start_collect_metrics_functions_script" {
   name   = "${var.functions_scripts_folder}start_collect_metrics.zip"
   bucket = var.bucket_name
   source = "${path.module}/zips/start_collect_metrics.zip"
-  depends_on = [null_resource.zip_scripts]
+  depends_on = [data.archive_file.start_collect_metrics_functions_script_zip]
 }
