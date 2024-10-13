@@ -4,7 +4,6 @@ resource "google_cloud_scheduler_job" "start_pipeline" {
   description = "Job to start the data processing pipeline"
   schedule    = "1 0 1 1 *"
   time_zone   = "America/Sao_Paulo"
-  state = "PAUSED"
 
   pubsub_target {
     topic_name = google_pubsub_topic.process_data_topic.id
