@@ -20,6 +20,7 @@ parser.add_argument('--format', required=True, help='Formato de saída: parquet,
 parser.add_argument('--compression', required=True, help='Codec de compressão a ser utilizado')
 parser.add_argument('--execution_id', required=False, help='ID único da execução (opcional)')
 args = parser.parse_args()
+logger.info(f"Argumentos de linha de comando: {args}")
 
 # Gera um ID único para a execução, caso não tenha sido fornecido
 if args.execution_id:
@@ -32,6 +33,7 @@ description = f"Escrita em {args.format.upper()} com compressão {args.compressi
 
 event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
 subprocess.run(['gsutil', 'mkdir', '-p', event_log_dir])
+logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
 
 # Inicializa a SparkSession com event logging habilitado
 spark = SparkSession.builder \
