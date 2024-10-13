@@ -1,4 +1,4 @@
-# entry_point.py for read_data_function
+# entry_point.py for read_data
 
 def entry_point(event, context):
     import base64

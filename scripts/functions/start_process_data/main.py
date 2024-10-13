@@ -1,4 +1,4 @@
-# entry_point.py for process_data_function
+# entry_point.py for process_data
 
 def entry_point(event, context):
     import base64
