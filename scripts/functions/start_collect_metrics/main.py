@@ -3,7 +3,7 @@ import json
 import os
 import logging
 from google.cloud import storage, dataproc_v1, monitoring_v3
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Configuração do logger
 logging.basicConfig(level=logging.INFO)
@@ -61,8 +61,7 @@ def collect_dataproc_metrics(project_id, region, batch_id):
     monitoring_client = monitoring_v3.MetricServiceClient()
 
     interval = monitoring_v3.TimeInterval()
-    end_time_monitoring = datetime.utcnow()
-    start_time_monitoring = create_time
+    end_time_monitoring = datetime.now(timezone.utc)
 
     interval.end_time.seconds = int(end_time_monitoring.timestamp())
     interval.start_time.seconds = int(create_time.timestamp())
@@ -134,7 +133,7 @@ def entry_point(event, context):
         "format": data_format,
         "gcs_metrics": gcs_metrics,
         "dataproc_metrics": dataproc_metrics,
-        "collection_time": datetime.utcnow().isoformat(),
+        "collection_time": datetime.now(timezone.utc).isoformat(),
     }
 
     metrics_file = f"/tmp/collect_metrics_{execution_id}.json"
