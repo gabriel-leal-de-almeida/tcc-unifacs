@@ -31,8 +31,12 @@ else:
 # Descrição da execução
 description = f"Escrita em {args.format.upper()} com compressão {args.compression}"
 
+string_vazia = ""
+
 event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
 subprocess.run(['gsutil', 'mkdir', '-p', event_log_dir])
+# Crie um arquivo vazio para garantir que o diretório seja criado
+subprocess.run(['gsutil', 'cp', string_vazia, f"{event_log_dir}/.keep"])
 logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
 
 # Inicializa a SparkSession com event logging habilitado
