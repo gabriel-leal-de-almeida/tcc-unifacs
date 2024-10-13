@@ -29,9 +29,15 @@ description = f"Leitura de dados no formato {args.format.upper()}"
 # Constrói o caminho do GCS para os dados que serão lidos da etapa anterior
 input_path = f"gs://{args.bucket}/data/{args.format}/{execution_id}/"
 
+
+event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
+subprocess.run(['gsutil', 'mkdir', '-p', event_log_dir])
+
 # Inicializa a SparkSession
 spark = SparkSession.builder \
     .appName(f"Read {args.format.upper()} Data - {execution_id}") \
+    .config("spark.eventLog.enabled", "true") \
+    .config("spark.eventLog.dir", f"gs://{args.bucket}/spark-event-logs/{execution_id}") \
     .getOrCreate()
 
 # Registro do tempo de início do job

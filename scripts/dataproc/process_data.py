@@ -30,6 +30,9 @@ else:
 # Descrição da execução
 description = f"Escrita em {args.format.upper()} com compressão {args.compression}"
 
+event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
+subprocess.run(['gsutil', 'mkdir', '-p', event_log_dir])
+
 # Inicializa a SparkSession com event logging habilitado
 spark = SparkSession.builder \
     .appName(f"BigQuery to {args.format.upper()} - {execution_id}") \
