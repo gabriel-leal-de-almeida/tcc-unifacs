@@ -19,6 +19,7 @@ parser.add_argument('--bucket', required=True, help='Nome do bucket no GCS para 
 parser.add_argument('--format', required=True, help='Formato dos dados: parquet, avro, orc ou csv')
 parser.add_argument('--execution_id', required=True, help='ID único da execução')
 args = parser.parse_args()
+logger.info(f"Argumentos de linha de comando: {args}")
 
 # Obtém os argumentos de linha de comando
 execution_id = args.execution_id
@@ -32,6 +33,7 @@ input_path = f"gs://{args.bucket}/data/{args.format}/{execution_id}/"
 
 event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
 subprocess.run(['gsutil', 'mkdir', '-p', event_log_dir])
+logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
 
 # Inicializa a SparkSession
 spark = SparkSession.builder \
