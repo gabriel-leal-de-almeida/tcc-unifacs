@@ -9,6 +9,10 @@ resource "google_cloudfunctions_function" "start_process_data_function" {
   entry_point = "entry_point"
   available_memory_mb = 256
   timeout =  540
+  event_trigger {
+    event_type = "google.pubsub.topic.publish"
+    resource   = google_pubsub_topic.process_data_topic.id
+  }
 
   source_archive_bucket = var.bucket_name
   source_archive_object = google_storage_bucket_object.start_process_data_functions_script.name
@@ -30,6 +34,10 @@ resource "google_cloudfunctions_function" "start_read_data_function" {
   entry_point = "entry_point"
   available_memory_mb = 256
   timeout = 540
+  event_trigger {
+    event_type = "google.pubsub.topic.publish"
+    resource   = google_pubsub_topic.read_data_topic.id
+  }
 
   source_archive_bucket = var.bucket_name
   source_archive_object = google_storage_bucket_object.start_read_data_functions_script.name
@@ -51,7 +59,10 @@ resource "google_cloudfunctions_function" "start_collect_metrics_function" {
   entry_point = "entry_point"
   available_memory_mb = 256
   timeout = 540
-  
+  event_trigger {
+    event_type = "google.pubsub.topic.publish"
+    resource   = google_pubsub_topic.collect_metrics_topic.id
+  }
 
   source_archive_bucket = var.bucket_name
   source_archive_object = google_storage_bucket_object.start_collect_metrics_functions_script.name
