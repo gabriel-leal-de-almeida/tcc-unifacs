@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   terraform:
-    name: 'Terraform Apply'
+    name: 'Terraform Plan and Validate'
     runs-on: ubuntu-latest
 
     steps:
@@ -25,9 +28,12 @@ jobs:
       - name: 'Initialize Terraform'
         run: terraform init
 
+      - name: 'Validate Terraform'
+        run: terraform validate
+
       - name: 'Terraform Plan'
         run: terraform plan -out=tfplan -var "project_id=${{ secrets.GCP_PROJECT_ID }}" -var "region=${{ secrets.GCP_REGION }}" -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}"
 
       - name: 'Terraform Apply'
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: terraform apply -input=false tfplan
