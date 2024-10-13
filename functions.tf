@@ -8,6 +8,7 @@ resource "google_cloudfunctions_function" "start_process_data_function" {
   runtime     = "python39"
   entry_point = "entry_point"
   available_memory_mb = 256
+  timeout =  540
 
   source_archive_bucket = var.bucket_name
   source_archive_object = google_storage_bucket_object.start_process_data_functions_script.name
@@ -28,6 +29,7 @@ resource "google_cloudfunctions_function" "start_read_data_function" {
   runtime     = "python39"
   entry_point = "entry_point"
   available_memory_mb = 256
+  timeout = 540
 
   source_archive_bucket = var.bucket_name
   source_archive_object = google_storage_bucket_object.start_read_data_functions_script.name
@@ -48,6 +50,8 @@ resource "google_cloudfunctions_function" "start_collect_metrics_function" {
   runtime     = "python39"
   entry_point = "entry_point"
   available_memory_mb = 256
+  timeout = 540
+  
 
   source_archive_bucket = var.bucket_name
   source_archive_object = google_storage_bucket_object.start_collect_metrics_functions_script.name
