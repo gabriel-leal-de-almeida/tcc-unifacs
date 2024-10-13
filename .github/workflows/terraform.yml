@@ -31,8 +31,22 @@ jobs:
       - name: 'Validate Terraform'
         run: terraform validate
 
-      - name: 'Terraform Plan'
-        run: terraform plan -out=tfplan -var "project_id=${{ secrets.GCP_PROJECT_ID }}" -var "region=${{ secrets.GCP_REGION }}" -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}"
+      - name: 'Terraform Plan (Pull Request)'
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform plan \
+            -var "project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var "region=${{ secrets.GCP_REGION }}" \
+            -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}" \
+            -lock=false
+
+      - name: 'Terraform Plan (Push to Main)'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          terraform plan -out=tfplan \
+            -var "project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var "region=${{ secrets.GCP_REGION }}" \
+            -var "bucket_name=${{ secrets.GCS_BUCKET_NAME }}"
 
       - name: 'Terraform Apply'
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
