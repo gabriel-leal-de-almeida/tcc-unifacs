@@ -11,11 +11,11 @@ variable "bucket_name" {
 }
 
 variable "dataproc_scripts_folder" {
-  description = "Path local para os scripts Python que serão utilizados no Dataproc"
+  description = "Path para os scripts Python que serão utilizados no Dataproc"
   default     = "scripts/dataproc/"
 }
 
 variable "functions_scripts_folder" {
-  description = "Path local para os scripts Python que serão utilizados no Cloud Functions"
+  description = "Path para os scripts Python que serão utilizados no Cloud Functions"
   default     = "scripts/functions/"
 }
