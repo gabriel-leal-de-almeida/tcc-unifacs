@@ -52,6 +52,7 @@ bigquery_read_options = {
         SELECT *
         FROM `bigquery-public-data.crypto_bitcoin.transactions`
         WHERE block_timestamp_month > '2024-01-01' AND block_timestamp_month < '2024-01-02'
+        LIMIT 100000 /* Limita a 100.000 linhas para fins de teste */
     """,
     "parentProject": "{args.project}",
     "jobIdPrefix": f"job_{execution_id}_"
