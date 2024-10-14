@@ -32,14 +32,13 @@ input_path = f"gs://{args.bucket}/data/{args.format}/{execution_id}/"
 
 
 event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
-subprocess.run(['gsutil', 'mkdir', '-p', event_log_dir])
 logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
 
 # Inicializa a SparkSession
 spark = SparkSession.builder \
     .appName(f"Read {args.format.upper()} Data - {execution_id}") \
     .config("spark.eventLog.enabled", "true") \
-    .config("spark.eventLog.dir", f"gs://{args.bucket}/spark-event-logs/{execution_id}") \
+    .config("spark.eventLog.dir", f"{event_log_dir}") \
     .getOrCreate()
 
 # Registro do tempo de início do job
