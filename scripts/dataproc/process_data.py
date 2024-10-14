@@ -34,16 +34,13 @@ description = f"Escrita em {args.format.upper()} com compressão {args.compressi
 string_vazia = ""
 
 event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
-subprocess.run(['gsutil', 'mkdir', '-p', event_log_dir])
-# Crie um arquivo vazio para garantir que o diretório seja criado
-subprocess.run(['gsutil', 'cp', string_vazia, f"{event_log_dir}/.keep"])
 logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
 
 # Inicializa a SparkSession com event logging habilitado
 spark = SparkSession.builder \
     .appName(f"BigQuery to {args.format.upper()} - {execution_id}") \
     .config("spark.eventLog.enabled", "true") \
-    .config("spark.eventLog.dir", f"gs://{args.bucket}/spark-event-logs/{execution_id}") \
+    .config("spark.eventLog.dir", f"{event_log_dir}") \
     .getOrCreate()
 
 # Registro do tempo de início do job
