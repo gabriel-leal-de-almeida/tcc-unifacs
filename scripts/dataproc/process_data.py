@@ -55,8 +55,7 @@ logger.info("Avaliação do tempo de spark.read.format('bigquery').options(**big
 df = spark.read.format("bigquery") \
     .option("parentProject", f"{args.project}") \
     .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
-    .option("project", "elevated-nuance-438415-b2") \
-    .option("filter", "block_timestamp_month > '2024-01-01' AND block_timestamp_month < '2024-01-02'") \
+    .option("filter", "block_timestamp_month >= '2024-10-16'") \
     .load("bigquery-public-data.crypto_bitcoin.transactions")
 
 read_end_time = time.time()
