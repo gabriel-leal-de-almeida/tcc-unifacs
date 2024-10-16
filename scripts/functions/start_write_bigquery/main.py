@@ -5,52 +5,54 @@ def entry_point(event, context):
     import json
     import os
     from google.cloud import bigquery
-    from google.cloud import pubsub_v1
-    import uuid
+    import logging
 
-    # Parse Pub/Sub message
-    data = base64.b64decode(event['data']).decode('utf-8')
-    message = json.loads(data)
+    logging.basicConfig(level=logging.INFO)
 
-    project     = os.environ['PROJECT_ID']
-    bucket      = os.environ['BUCKET_NAME']
+    try:
+        # Parse Pub/Sub message
+        data = base64.b64decode(event['data']).decode('utf-8')
+        message = json.loads(data)
+        logging.info(f"Received message: {message}")
 
-    query = message.get('query')
+        project = os.environ['PROJECT_ID']
+        query = message.get('query')
+        logging.info(f"Query: {query}")
 
-    # BigQuery client
-    client = bigquery.Client(project=project)
+        if not query:
+            logging.error("No query found in the message.")
+            return
 
-    random_id = str(uuid.uuid4())
+        # BigQuery client
+        client = bigquery.Client(project=project)
 
-    # Define destination table
-    dataset_id = f"{project}.temp_dataset"
-    table_id = f"{dataset_id}.temp_table_{random_id}"
+        # Define destination table
+        dataset_id = f"{project}.source_data"
+        table_id = f"{dataset_id}.source_table"
 
-    # Create dataset if it doesn't exist
-    dataset_ref = bigquery.Dataset(dataset_id)
-    dataset = client.create_dataset(dataset_ref, exists_ok=True)
+        # Create dataset if it doesn't exist
+        dataset_ref = bigquery.Dataset(dataset_id)
+        client.create_dataset(dataset_ref, exists_ok=True)
 
-    # Configure query job
-    job_config = bigquery.QueryJobConfig(
-        destination=table_id,
-        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE
-    )
-
-    # Run the query
-    query_job = client.query(query, job_config=job_config)
-    query_job.result()  # Wait for the job to complete
-
-    # Extract table to GCS in Parquet format
-    destination_uri = f"gs://{bucket}/source_data/"
-    extract_job = client.extract_table(
-        table_id,
-        destination_uri,
-        job_config=bigquery.ExtractJobConfig(
-            destination_format=bigquery.DestinationFormat.PARQUET,
-            compression=bigquery.Compression.SNAPPY
+        # Configure query job
+        job_config = bigquery.QueryJobConfig(
+            destination=table_id,
+            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE
         )
-    )
-    extract_job.result()  # Wait for the job to complete
 
-    # Delete temporary table
-    client.delete_table(table_id, not_found_ok=True)
+        # Run the query
+        logging.info("Running query job...")
+        query_job = client.query(query, job_config=job_config)
+        query_job.result()  # Wait for the job to complete
+        logging.info("Query job completed.")
+
+        # Check the number of rows in the destination table
+        table = client.get_table(table_id)
+        row_count = table.num_rows
+        logging.info(f"Number of rows in the table: {row_count}")
+
+        if row_count == 0:
+            logging.warning("The query executed successfully, but no data was inserted into the table.")
+
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
