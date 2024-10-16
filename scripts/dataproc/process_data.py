@@ -56,7 +56,7 @@ df = spark.read.format("bigquery") \
     .option("parentProject", f"{args.project}") \
     .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
     .option("project", "bigquery-public-data") \
-    .load("crypto_bitcoin.transactions") \
+    .load("bigquery-public-data:crypto_bitcoin.transactions") \
     .where("block_timestamp_month = '2024-10-16'")
 
 
