@@ -61,7 +61,7 @@ df = spark.read.format("bigquery") \
     .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
     .option("query", query) \
     .option("viewsEnabled", "true") \
-    .option("materializationDataset", f"{args.project}.spark_materialization") \
+    .option("materializationDataset", f"spark_materialization") \
     .load()
 
 
