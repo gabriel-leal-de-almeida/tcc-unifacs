@@ -51,19 +51,13 @@ logger.info(f"Iniciando a execução com ID {execution_id}")
 read_start_time = time.time()
 logger.info("Avaliação do tempo de spark.read.format('bigquery').options(**bigquery_read_options).load()")
 
-# Query para leitura dos dados no BigQuery limita a 100.000 linhas para fins de teste
-query = """
-        SELECT *
-        FROM `bigquery-public-data.crypto_bitcoin.transactions`
-        WHERE block_timestamp_month > '2024-01-01' AND block_timestamp_month < '2024-01-02'
-        LIMIT 100000
-    """
-
 # Leitura do DataFrame
 df = spark.read.format("bigquery") \
     .option("parentProject", f"{args.project}") \
     .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
-    .load(query)
+    .option("table", "bigquery-public-data.crypto_bitcoin.transactions") \
+    .option("filter", "block_timestamp_month > '2024-01-01' AND block_timestamp_month < '2024-01-02'") \
+    .load()
 
 read_end_time = time.time()
 read_duration = read_end_time - read_start_time
