@@ -41,7 +41,7 @@ def entry_point(event, context):
     query_job.result()  # Wait for the job to complete
 
     # Extract table to GCS in Parquet format
-    destination_uri = f"gs://{bucket}/source_data/*.parquet"
+    destination_uri = f"gs://{bucket}/source_data/"
     extract_job = client.extract_table(
         table_id,
         destination_uri,
