@@ -51,13 +51,18 @@ logger.info(f"Iniciando a execução com ID {execution_id}")
 read_start_time = time.time()
 logger.info("Avaliação do tempo de spark.read.format('bigquery').options(**bigquery_read_options).load()")
 
+query = """
+SELECT * FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month = '2024-10-16'
+"""
+
 # Leitura do DataFrame
 df = spark.read.format("bigquery") \
     .option("parentProject", f"{args.project}") \
     .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
-    .option("project", "bigquery-public-data") \
-    .load("bigquery-public-data.crypto_bitcoin.transactions") \
-    .where("block_timestamp_month = '2024-10-16'")
+    .option("query", query) \
+    .option("viewsEnabled", "true") \
+    .option("materializationDataset", f"{args.project}.spark_materialization") \
+    .load()
 
 
 read_end_time = time.time()
