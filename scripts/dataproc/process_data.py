@@ -31,17 +31,17 @@ else:
 # Descrição da execução
 description = f"Escrita em {args.format.upper()} com compressão {args.compression}"
 
-string_vazia = ""
+# string_vazia = ""
 
-event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
-logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
+# event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
+# logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
 
 # Inicializa a SparkSession com event logging habilitado
 spark = SparkSession.builder \
     .appName(f"BigQuery to {args.format.upper()} - {execution_id}") \
-    .config("spark.eventLog.enabled", "true") \
-    .config("spark.eventLog.dir", f"{event_log_dir}") \
     .getOrCreate()
+    # .config("spark.eventLog.enabled", "true") \
+    # .config("spark.eventLog.dir", f"{event_log_dir}") \
 
 # Registro do tempo de início do job
 job_start_time = time.time()
