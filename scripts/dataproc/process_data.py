@@ -52,8 +52,10 @@ read_start_time = time.time()
 logger.info("Avaliação do tempo de leitura a partir do GCS em parquet (origem)")
 
 # Leitura do DataFrame
-df = spark.read.format("parquet") \
-    .load(f"gs://{args.bucket}/source_data/")
+df = spark.read.format("bigquery") \
+    .option("parentProject", f"{args.project}") \
+    .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
+    .load("tcc-unifacs.source_data.source_table")
 
 
 read_end_time = time.time()

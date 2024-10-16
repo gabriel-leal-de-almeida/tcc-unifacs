@@ -47,7 +47,7 @@ resource "google_cloud_scheduler_job" "start_write_bigquery" {
   pubsub_target {
     topic_name = google_pubsub_topic.write_bigquery_topic.id
     data       = base64encode(jsonencode({
-      "query" : "SELECT * FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month = '2024-10-16'"
+      "query" : "SELECT * FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month > DATE('2022-12-31') AND block_timestamp_month < DATE('2024-01-01')"
     }))
   }
 }
