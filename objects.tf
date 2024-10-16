@@ -56,3 +56,10 @@ resource "google_storage_bucket_object" "start_collect_metrics_functions_script"
   source = "${path.module}/zips/start_collect_metrics.zip"
   depends_on = [data.archive_file.start_collect_metrics_functions_script_zip]
 }
+
+resource "google_storage_bucket_object" "start_write_bigquery_functions_script" {
+  name   = "${var.functions_scripts_folder}start_write_bigquery.zip"
+  bucket = var.bucket_name
+  source = "${path.module}/zips/start_write_bigquery.zip"
+  depends_on = [data.archive_file.start_write_bigquery_functions_script_zip]
+}
