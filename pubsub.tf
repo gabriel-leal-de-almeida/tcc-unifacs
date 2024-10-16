@@ -1,4 +1,8 @@
 # Create Pub/Sub topics
+resource "google_pubsub_topic" "write_bigquery_topic" {
+  name = "write-bigquery-topic"
+}
+
 resource "google_pubsub_topic" "process_data_topic" {
   name = "process-data-topic"
 }

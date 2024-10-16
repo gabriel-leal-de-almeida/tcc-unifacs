@@ -49,25 +49,16 @@ logger.info(f"Iniciando a execução com ID {execution_id}")
 
 # Leitura dos dados do BigQuery
 read_start_time = time.time()
-logger.info("Avaliação do tempo de spark.read.format('bigquery').options(**bigquery_read_options).load()")
-
-query = """
-SELECT * FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month = '2024-10-16'
-"""
+logger.info("Avaliação do tempo de leitura a partir do GCS em parquet (origem)")
 
 # Leitura do DataFrame
-df = spark.read.format("bigquery") \
-    .option("parentProject", f"{args.project}") \
-    .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
-    .option("query", query) \
-    .option("viewsEnabled", "true") \
-    .option("materializationDataset", f"spark_materialization") \
-    .load()
+df = spark.read.format("parquet") \
+    .load(f"gs://{args.bucket}/source_data/")
 
 
 read_end_time = time.time()
 read_duration = read_end_time - read_start_time
-logger.info(f"Tempo de avaliação de spark.read.format('bigquery').options(**bigquery_read_options).load(): {read_duration} segundos")
+logger.info(f"Tempo de avaliação de leitura a partir do GCS em parquet (origem): {read_duration} segundos")
 
 # Escrita dos dados no formato especificado
 write_start_time = time.time()

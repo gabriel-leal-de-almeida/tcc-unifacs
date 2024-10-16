@@ -74,3 +74,25 @@ resource "google_cloudfunctions_function" "start_collect_metrics_function" {
     SCRIPT_PATH = "gs://${var.bucket_name}/${google_storage_bucket_object.collect_metrics_functions_script.name}"
   }
 }
+
+resource "google_cloudfunctions_function" "write_bigquery_function" {
+  name        = "start-write-bigquery-function"
+  description = "Cloud Function to execute ..."
+  runtime     = "python39"
+  entry_point = "entry_point"
+  available_memory_mb = 256
+  timeout = 540
+  event_trigger {
+    event_type = "google.pubsub.topic.publish"
+    resource   = google_pubsub_topic.write_bigquery_topic.id
+  }
+
+  source_archive_bucket = var.bucket_name
+  source_archive_object = google_storage_bucket_object.start_write_bigquery_functions_script.name
+
+  environment_variables = {
+    PROJECT_ID  = var.project_id
+    BUCKET_NAME = var.bucket_name
+    SCRIPT_PATH = "gs://${var.bucket_name}/${google_storage_bucket_object.start_write_bigquery_functions_script.name}"
+  }
+}
