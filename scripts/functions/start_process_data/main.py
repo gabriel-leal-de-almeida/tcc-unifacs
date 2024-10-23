@@ -42,14 +42,3 @@ def entry_point(event, context):
     parent = f"projects/{project}/locations/{region}"
     operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"process-data-{execution_id}"})
     operation.result()
-
-    # Publish message to next topic
-    publisher = pubsub_v1.PublisherClient()
-    topic_path = publisher.topic_path(project, next_topic)
-
-    next_message = {
-        "execution_id": execution_id,
-        "format": data_format
-    }
-
-    publisher.publish(topic_path, json.dumps(next_message).encode("utf-8"))
