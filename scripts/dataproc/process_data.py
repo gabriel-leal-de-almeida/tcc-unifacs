@@ -50,7 +50,7 @@ logger.info(f"Iniciando a execução com ID {execution_id}")
 
 # Leitura dos dados do BigQuery
 read_start_time = time.time()
-logger.info("Avaliação do tempo de leitura a partir do GCS em parquet (origem)")
+logger.info("Avaliação do tempo de leitura a partir do BigQuery (origem)")
 
 # Leitura do DataFrame
 df = spark.read.format("bigquery") \
@@ -61,7 +61,7 @@ df = spark.read.format("bigquery") \
 
 read_end_time = time.time()
 read_duration = read_end_time - read_start_time
-logger.info(f"Tempo de avaliação de leitura a partir do GCS em parquet (origem): {read_duration} segundos")
+logger.info(f"Tempo de avaliação de leitura a partir do BigQuery (origem): {read_duration} segundos")
 
 # Escrita dos dados no formato especificado
 write_start_time = time.time()
