@@ -98,8 +98,8 @@ logger.info("Coleta de métricas")
 
 # Coleta de métricas do tamanho dos dados escritos
 # Usa o comando gsutil para obter o tamanho total dos arquivos
-output_uri = f"{output_full_path}/"
-du_command = ['gsutil', 'du', '-s', output_uri]
+output_uri = f"{output_full_path}/*"
+du_command = ['gsutil', 'du', '-s', output_uri] # 
 du_process = subprocess.Popen(du_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 du_output, du_error = du_process.communicate()
 
@@ -118,13 +118,14 @@ ls_output, ls_error = ls_process.communicate()
 
 if ls_process.returncode == 0:
     num_files = len(ls_output.decode('utf-8').split())
-    logger.info(f"Quantidade de arquivos escritos: {num_files}")
+    logger.info(f"Quantidade de arquivos escritos: {num_files}")    
+    logger.info(f"Quantidade de arquivos de dados escritos (desconsidera 'path' da pasta do bucket e _SUCCESS): {num_files - 2}")
 else:
     num_files = None
     logger.error(f"Erro ao obter a quantidade de arquivos escritos: {ls_error.decode('utf-8')}")
 
 # Calcula o tamanho médio dos arquivos
-avg_file_size = size_in_bytes / num_files if num_files else None
+avg_file_size = size_in_bytes / (num_files -2) if num_files else None # -2 para descontar os arquivos de metadados
 logger.info(f"Tamanho médio dos arquivos escritos: {avg_file_size} bytes")
 
 # Montagem das métricas
@@ -163,6 +164,17 @@ logger.info(f"Métricas copiadas para {gcs_metrics_path}")
 metric_collector_end_time = time.time()
 metric_collector_duration = metric_collector_end_time - metric_collector_start_time
 logger.info(f"Tempo de coleta de métricas: {metric_collector_duration} segundos")
+
+# Publish message to next topic
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(args.project, "read-data-topic")
+
+next_message = {
+    "execution_id": execution_id,
+    "format": args.format
+}
+
+publisher.publish(topic_path, json.dumps(next_message).encode("utf-8"))
 
 # Encerra a SparkSession
 spark.stop()

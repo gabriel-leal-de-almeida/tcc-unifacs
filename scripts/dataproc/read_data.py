@@ -7,6 +7,8 @@ import json
 import sys
 from pyspark.sql import SparkSession
 import subprocess
+from google.cloud import pubsub_v1
+from pyspark.sql import functions as F
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -60,13 +62,35 @@ read_end_time = time.time()
 read_duration = read_end_time - read_start_time
 logger.info(f"Leitura de dados concluída em {read_duration} segundos")
 
-# Realiza uma ação para garantir que os dados foram lidos
+# Realiza uma ação de contagem
 count_start_time = time.time()
 record_count = df.count()
 count_end_time = time.time()
 count_duration = count_end_time - count_start_time
 logger.info(f"Contagem de registros concluída em {count_duration} segundos")
 logger.info(f"Total de registros lidos: {record_count}")
+
+# Realiza a contagem de registros distintos
+distinct_count_start_time = time.time()
+distinct_count = df.distinct().count()
+distinct_count_end_time = time.time()
+distinct_count_duration = distinct_count_end_time - distinct_count_start_time
+logger.info(f"Contagem de registros distintos concluída em {distinct_count_duration} segundos")
+logger.info(f"Total de registros distintos: {distinct_count}")
+
+# Realiza uma agregação
+aggregation_start_time = time.time()
+aggregated_df = df.groupBy("block_timestamp_month", "is_coinbase") \
+    .agg(
+        F.min("block_timestamp").alias("timestamp_minimo"),
+        F.max("block_timestamp").alias("timestamp_maximo"),
+        F.count("*").alias("quantidade_de_linhas"),
+        F.sum("fee").alias("soma_fee")
+    )
+aggregated_df.show(100, False, truncate=False)
+aggregation_end_time = time.time()
+aggregation_duration = aggregation_end_time - aggregation_start_time
+logger.info(f"Agregação concluída em {aggregation_duration} segundos")
 
 # Registro do tempo total de execução
 job_end_time = time.time()
@@ -83,6 +107,8 @@ metrics = {
     "count_duration_sec": count_duration,
     "total_duration_sec": total_duration,
     "record_count": record_count,
+    "distinct_count": distinct_count,
+    "aggregation_duration_sec": aggregation_duration,
     "job_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_start_time)),
     "job_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_end_time)),
     "spark_version": spark.version,
@@ -102,6 +128,17 @@ gcs_metrics_path = f"gs://{args.bucket}/metrics/{execution_id}_metrics.json"
 subprocess.run(['gsutil', 'cp', metrics_file, gcs_metrics_path])
 
 logger.info(f"Métricas copiadas para {gcs_metrics_path}")
+
+# Publish message to next topic
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(args.project, "collect-metrics-topic")
+
+next_message = {
+    "execution_id": execution_id,
+    "format": args.format
+}
+
+publisher.publish(topic_path, json.dumps(next_message).encode("utf-8"))
 
 # Encerra a SparkSession
 spark.stop()
