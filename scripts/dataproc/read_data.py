@@ -87,7 +87,7 @@ aggregated_df = df.groupBy("block_timestamp_month", "is_coinbase") \
         F.count("*").alias("quantidade_de_linhas"),
         F.sum("fee").alias("soma_fee")
     )
-aggregated_df.show(100, False, truncate=False)
+aggregated_df.show(100, False)
 aggregation_end_time = time.time()
 aggregation_duration = aggregation_end_time - aggregation_start_time
 logger.info(f"Agregação concluída em {aggregation_duration} segundos")
