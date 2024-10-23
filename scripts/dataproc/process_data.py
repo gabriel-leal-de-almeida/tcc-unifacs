@@ -7,6 +7,7 @@ import logging
 import argparse
 import subprocess
 import sys
+from google.cloud import pubsub_v1
 
 # Configuração do logger
 logging.basicConfig(level=logging.INFO)

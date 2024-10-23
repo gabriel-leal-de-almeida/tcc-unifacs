@@ -51,3 +51,17 @@ resource "google_cloud_scheduler_job" "start_write_bigquery" {
     }))
   }
 }
+
+resource "google_cloud_scheduler_job" "start_write_bigquery_dev" {
+  name        = "start-write-bigquery-dev"
+  description = "DEV: Job to write BigQuery results"
+  schedule    = "1 0 1 1 *"
+  time_zone   = "America/Sao_Paulo"
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.write_bigquery_topic.id
+    data       = base64encode(jsonencode({
+      "query" : "SELECT * FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month > DATE('2022-12-31') AND block_timestamp_month < DATE('2023-02-01') LIMIT 1000000"
+    }))
+  }
+}
