@@ -61,7 +61,7 @@ resource "google_cloud_scheduler_job" "start_write_bigquery_dev" {
   pubsub_target {
     topic_name = google_pubsub_topic.write_bigquery_topic.id
     data       = base64encode(jsonencode({
-      "query" : "SELECT * FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month > DATE('2022-12-31') AND block_timestamp_month < DATE('2023-02-01') LIMIT 1000000"
+      "query" : "SELECT * FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month > DATE('2022-12-31') AND block_timestamp_month < DATE('2023-02-01') LIMIT 100000"
     }))
   }
 }
