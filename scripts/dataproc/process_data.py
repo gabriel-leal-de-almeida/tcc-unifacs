@@ -19,15 +19,12 @@ parser.add_argument('--project', required=True, help='ID do projeto GCP')
 parser.add_argument('--bucket', required=True, help='Nome do bucket no GCS para salvar os dados')
 parser.add_argument('--format', required=True, help='Formato de saída: parquet, avro, orc ou csv')
 parser.add_argument('--compression', required=True, help='Codec de compressão a ser utilizado')
-parser.add_argument('--execution_id', required=False, help='ID único da execução (opcional)')
+parser.add_argument('--execution_id', required=True, help='ID único da execução')
 args = parser.parse_args()
 logger.info(f"Argumentos de linha de comando: {args}")
 
 # Gera um ID único para a execução, caso não tenha sido fornecido
-if args.execution_id:
-    execution_id = args.execution_id
-else:
-    execution_id = str(uuid.uuid4())
+execution_id = args.execution_id
 
 # Descrição da execução
 description = f"Escrita em {args.format.upper()} com compressão {args.compression}"
@@ -159,7 +156,7 @@ with open(metrics_file, "w") as f:
 logger.info(f"Métricas salvas em {metrics_file}")
 
 # Copiar o arquivo de métricas para o GCS
-gcs_metrics_path = f"gs://{args.bucket}/metrics/execution_id={execution_id}/process_data_metrics.json"
+gcs_metrics_path = f"gs://{args.bucket}/metrics/process-data/execution_id={execution_id}/metrics.json"
 subprocess.run(['gsutil', 'cp', metrics_file, gcs_metrics_path])
 
 logger.info(f"Métricas copiadas para {gcs_metrics_path}")

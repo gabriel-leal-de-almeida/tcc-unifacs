@@ -3,22 +3,18 @@
 locals {
   formats = {
     parquet = {
-      execution_id = "${uuid()}"
       format       = "parquet"
       compression  = "snappy"
     }
     avro = {
-      execution_id = "${uuid()}"
       format       = "avro"
       compression  = "snappy"
     }
     orc = {
-      execution_id = "${uuid()}"
       format       = "orc"
       compression  = "snappy"
     }
     csv = {
-      execution_id = "${uuid()}"
       format       = "csv"
       compression  = "gzip"
     }
