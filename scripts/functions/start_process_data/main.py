@@ -4,6 +4,7 @@ def entry_point(event, context):
     import base64
     import json
     import os
+    import uuid
     from google.cloud import dataproc_v1
     from google.cloud import pubsub_v1
 
@@ -17,7 +18,7 @@ def entry_point(event, context):
     script_uri = os.environ['SCRIPT_PATH']
     next_topic = os.environ['NEXT_TOPIC']
 
-    execution_id = message.get('execution_id')
+    execution_id = uuid.uuid4()
     data_format  = message.get('format')
     compression  = message.get('compression')
 
