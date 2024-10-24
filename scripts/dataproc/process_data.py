@@ -168,6 +168,10 @@ metric_collector_end_time = time.time()
 metric_collector_duration = metric_collector_end_time - metric_collector_start_time
 logger.info(f"Tempo de coleta de métricas: {metric_collector_duration} segundos")
 
+# Encerra a SparkSession
+spark.stop()
+logger.info("SparkSession encerrada")
+
 # Publish message to next topic
 publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(args.project, "read-data-topic")
@@ -179,6 +183,6 @@ next_message = {
 
 publisher.publish(topic_path, json.dumps(next_message).encode("utf-8"))
 
-# Encerra a SparkSession
-spark.stop()
-logger.info("SparkSession encerrada")
+print(f"Mensagem publicada no tópico {topic_path}")
+# Encerra a execução
+print("Execução concluída com sucesso")
