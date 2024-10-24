@@ -124,6 +124,32 @@ job_end_time = time.time()
 total_duration = job_end_time - job_start_time
 logger.info(f"Tempo total de execução: {total_duration} segundos")
 
+# Registo do tempo de uma operação de amostragem com ordenação
+sample_start_time = time.time()
+sample_df = df.sample(False, 0.1).orderBy(F.desc("block_timestamp"))
+sample_df.show(100, False)
+sample_end_time = time.time()
+sample_duration = sample_end_time - sample_start_time
+logger.info(f"Amostragem com ordenação concluída em {sample_duration} segundos")
+
+# Registro de um union do mesmo DataFrame duas vezes
+union_start_time = time.time()
+union_df = df.union(df)
+union_df.show(100, False)
+union_end_time = time.time()
+union_duration = union_end_time - union_start_time
+logger.info(f"União do DataFrame consigo mesmo concluída em {union_duration} segundos")
+
+# Registro de um intersect do mesmo DataFrame duas vezes após amostragem
+intersect_start_time = time.time()
+sample_df1 = df.sample(False, 0.1)
+sample_df2 = df.sample(False, 0.1)
+intersect_df = sample_df1.intersect(sample_df2)
+intersect_df.show(100, False)
+intersect_end_time = time.time()
+intersect_duration = intersect_end_time - intersect_start_time
+logger.info(f"Intersecção dos DataFrames após amostragem concluída em {intersect_duration} segundos")
+
 # Coleta das métricas
 metrics = {
     "execution_id": execution_id,
@@ -140,6 +166,9 @@ metrics = {
     "filter_duration_sec": filter_duration,
     "sort_duration_sec": sort_duration,
     "join_duration_sec": join_duration,
+    "sample_duration_sec": sample_duration,
+    "union_duration_sec": union_duration,
+    "intersect_duration_sec": intersect_duration,
     "job_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_start_time)),
     "job_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_end_time)),
     "spark_version": spark.version,
