@@ -40,5 +40,5 @@ def entry_point(event, context):
     }
 
     parent = f"projects/{project}/locations/{region}"
-    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"process-data-{execution_id}", "labels": {"execution_id": execution_id}})
+    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"process-data-{execution_id}"})
     operation.result()
