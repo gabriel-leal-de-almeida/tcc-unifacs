@@ -92,6 +92,33 @@ aggregation_end_time = time.time()
 aggregation_duration = aggregation_end_time - aggregation_start_time
 logger.info(f"Agregação concluída em {aggregation_duration} segundos")
 
+# Realiza uma filtragem
+filter_start_time = time.time()
+filtered_df = df.filter(df['is_coinbase'] == True)
+filtered_count = filtered_df.count()
+filter_end_time = time.time()
+filter_duration = filter_end_time - filter_start_time
+logger.info(f"Filtragem concluída em {filter_duration} segundos")
+logger.info(f"Total de registros após filtragem: {filtered_count}")
+
+# Realiza uma ordenação
+sort_start_time = time.time()
+sorted_df = df.orderBy(F.desc("block_timestamp"))
+sorted_df.show(100, False)
+sort_end_time = time.time()
+sort_duration = sort_end_time - sort_start_time
+logger.info(f"Ordenação concluída em {sort_duration} segundos")
+
+# Realiza uma junção
+join_start_time = time.time()
+df1 = df.select("block_timestamp", "block_timestamp_month", "fee")
+df2 = df.select("block_timestamp", "is_coinbase")
+joined_df = df1.join(df2, "block_timestamp")
+joined_df.show(100, False)
+join_end_time = time.time()
+join_duration = join_end_time - join_start_time
+logger.info(f"Junção concluída em {join_duration} segundos")
+
 # Registro do tempo total de execução
 job_end_time = time.time()
 total_duration = job_end_time - job_start_time
@@ -109,6 +136,10 @@ metrics = {
     "record_count": record_count,
     "distinct_count": distinct_count,
     "aggregation_duration_sec": aggregation_duration,
+    "filtered_count": filtered_count,
+    "filter_duration_sec": filter_duration,
+    "sort_duration_sec": sort_duration,
+    "join_duration_sec": join_duration,
     "job_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_start_time)),
     "job_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_end_time)),
     "spark_version": spark.version,
