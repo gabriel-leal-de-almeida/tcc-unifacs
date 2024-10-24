@@ -56,6 +56,9 @@ logger.info("Avaliação do tempo de leitura a partir do BigQuery (origem)")
 df = spark.read.format("bigquery") \
     .option("parentProject", f"{args.project}") \
     .option("bigQueryJobLabels", json.dumps({"execution_id": execution_id, "description": description, "format": args.format.lower()})) \
+    .option("project", f"{args.project}") \
+    .option("traceApplicationName", f"{args.project}.spark-job") \
+    .option("traceJobId", f"{execution_id}") \
     .load(f"{args.project}.source_data.source_table")
 
 
@@ -156,7 +159,7 @@ with open(metrics_file, "w") as f:
 logger.info(f"Métricas salvas em {metrics_file}")
 
 # Copiar o arquivo de métricas para o GCS
-gcs_metrics_path = f"gs://{args.bucket}/metrics/{execution_id}_metrics.json"
+gcs_metrics_path = f"gs://{args.bucket}/metrics/execution_id={execution_id}/process_data_metrics.json"
 subprocess.run(['gsutil', 'cp', metrics_file, gcs_metrics_path])
 
 logger.info(f"Métricas copiadas para {gcs_metrics_path}")

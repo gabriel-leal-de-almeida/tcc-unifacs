@@ -124,21 +124,21 @@ with open(metrics_file, "w") as f:
 logger.info(f"Métricas salvas em {metrics_file}")
 
 # Copiar o arquivo de métricas para o GCS
-gcs_metrics_path = f"gs://{args.bucket}/metrics/{execution_id}_metrics.json"
+gcs_metrics_path = f"gs://{args.bucket}/metrics/execution_id={execution_id}/read_data_metrics.json"
 subprocess.run(['gsutil', 'cp', metrics_file, gcs_metrics_path])
 
 logger.info(f"Métricas copiadas para {gcs_metrics_path}")
 
 # Publish message to next topic
-publisher = pubsub_v1.PublisherClient()
-topic_path = publisher.topic_path(args.project, "collect-metrics-topic")
+# publisher = pubsub_v1.PublisherClient()
+# topic_path = publisher.topic_path(args.project, "collect-metrics-topic")
 
-next_message = {
-    "execution_id": execution_id,
-    "format": args.format
-}
+# next_message = {
+#     "execution_id": execution_id,
+#     "format": args.format
+# }
 
-publisher.publish(topic_path, json.dumps(next_message).encode("utf-8"))
+# publisher.publish(topic_path, json.dumps(next_message).encode("utf-8"))
 
 # Encerra a SparkSession
 spark.stop()

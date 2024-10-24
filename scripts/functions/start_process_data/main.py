@@ -34,7 +34,8 @@ def entry_point(event, context):
                 "--bucket", bucket,
                 "--format", data_format,
                 "--compression", compression,
-                "--execution_id", execution_id
+                "--execution_id", execution_id,
+                "--labels", f"execution-id={execution_id}"
             ]
         }
     }
