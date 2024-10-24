@@ -190,7 +190,7 @@ subprocess.run(['gsutil', 'cp', metrics_file, gcs_metrics_path])
 logger.info(f"Métricas copiadas para {gcs_metrics_path}")
 
 # Limpando dados do bucket para evitar custos adicionais de armaazenamento
-subprocess.run(['gsutil', 'rm', '-r', input_path])
+subprocess.run(['gsutil', '-m', 'rm', '-r', input_path])
 
 logger.info(f"Dados removidos de {input_path}")
 
