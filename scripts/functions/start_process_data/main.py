@@ -34,12 +34,11 @@ def entry_point(event, context):
                 "--bucket", bucket,
                 "--format", data_format,
                 "--compression", compression,
-                "--execution_id", execution_id,
-                "--labels", f"execution-id={execution_id}"
+                "--execution_id", execution_id
             ]
         }
     }
 
     parent = f"projects/{project}/locations/{region}"
-    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"process-data-{execution_id}"})
+    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"process-data-{execution_id}", "labels": {"execution_id": execution_id}})
     operation.result()
