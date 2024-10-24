@@ -18,7 +18,7 @@ def entry_point(event, context):
     script_uri = os.environ['SCRIPT_PATH']
     next_topic = os.environ['NEXT_TOPIC']
 
-    execution_id = uuid.uuid4()
+    execution_id = uuid.uuid4().hex
     data_format  = message.get('format')
     compression  = message.get('compression')
 
