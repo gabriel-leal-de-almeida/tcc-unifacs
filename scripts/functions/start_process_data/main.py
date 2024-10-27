@@ -16,7 +16,6 @@ def entry_point(event, context):
     region     = os.environ['REGION']
     bucket     = os.environ['BUCKET_NAME']
     script_uri = os.environ['SCRIPT_PATH']
-    next_topic = os.environ['NEXT_TOPIC']
 
     execution_id = uuid.uuid4().hex
     data_format  = message.get('format')
@@ -40,7 +39,7 @@ def entry_point(event, context):
             ]
         },
         "runtime_config": {
-            "version": "2.2.29"
+            "version": "2.2"
         },
         "labels": {
             "execution_id": execution_id
