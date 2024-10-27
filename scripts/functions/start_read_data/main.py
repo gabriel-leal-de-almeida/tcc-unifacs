@@ -15,7 +15,6 @@ def entry_point(event, context):
     region     = os.environ['REGION']
     bucket     = os.environ['BUCKET_NAME']
     script_uri = os.environ['SCRIPT_PATH']
-    next_topic = os.environ['NEXT_TOPIC']
 
     execution_id = message.get('execution_id')
     data_format  = message.get('format')
@@ -28,15 +27,22 @@ def entry_point(event, context):
     batch = {
         "pyspark_batch": {
             "main_python_file_uri": script_uri,
+            "jar_file_uris": [f"gs://{bucket}/libs/jars/spark-avro_2.13-3.5.1.jar"],
             "args": [
                 "--project", project,
                 "--bucket", bucket,
                 "--format", data_format,
                 "--execution_id", execution_id
             ]
+        },
+        "runtime_config": {
+            "version": "2.2"
+        },
+        "labels": {
+            "execution_id": execution_id
         }
     }
 
     parent = f"projects/{project}/locations/{region}"
-    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"read-data-{execution_id}"})
+    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"read-data-{data_format}-{execution_id}"})
     operation.result()

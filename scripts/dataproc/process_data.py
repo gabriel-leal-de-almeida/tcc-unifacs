@@ -36,7 +36,7 @@ description = f"Escrita em {args.format.upper()} com compressão {args.compressi
 
 # Inicializa a SparkSession com event logging habilitado
 spark = SparkSession.builder \
-    .appName(f"BigQuery to {args.format.upper()} - {execution_id}") \
+    .appName(f"process-data-{args.format}-{execution_id}") \
     .getOrCreate()
     # .config("spark.eventLog.enabled", "true") \
     # .config("spark.eventLog.dir", f"{event_log_dir}") \
@@ -128,8 +128,14 @@ else:
 avg_file_size = size_in_bytes / (num_files -2) if num_files else None # -2 para descontar os arquivos de metadados
 logger.info(f"Tamanho médio dos arquivos escritos: {avg_file_size} bytes")
 
+metric_collector_end_time = time.time()
+metric_collector_duration = metric_collector_end_time - metric_collector_start_time
+logger.info(f"Tempo de coleta de métricas: {metric_collector_duration} segundos")
+
 # Montagem das métricas
 metrics = {
+    "spark_version": spark.version,
+    "python_version": sys.version,
     "execution_id": execution_id,
     "description": description,
     "format": args.format.lower(),
@@ -137,14 +143,15 @@ metrics = {
     "output_path": output_full_path,
     "read_duration_sec": read_duration,
     "write_duration_sec": write_duration,
+    "job_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_start_time)),
+    "job_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_end_time)),
     "total_duration_sec": total_duration,
     "size_in_bytes": size_in_bytes,
     "num_files": num_files,
     "avg_file_size_bytes": avg_file_size,
-    "job_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_start_time)),
-    "job_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_end_time)),
-    "spark_version": spark.version,
-    "python_version": sys.version,
+    "metric_colletor_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metric_collector_start_time)),
+    "metric_colletor_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metric_collector_end_time)),
+    "metric_colletor_duration_sec": metric_collector_duration
     # Outras métricas podem ser adicionadas aqui
 }
 
@@ -160,10 +167,6 @@ gcs_metrics_path = f"gs://{args.bucket}/metrics/process-data/execution_id={execu
 subprocess.run(['gsutil', 'cp', metrics_file, gcs_metrics_path])
 
 logger.info(f"Métricas copiadas para {gcs_metrics_path}")
-
-metric_collector_end_time = time.time()
-metric_collector_duration = metric_collector_end_time - metric_collector_start_time
-logger.info(f"Tempo de coleta de métricas: {metric_collector_duration} segundos")
 
 # Publish message to next topic
 publisher = pubsub_v1.PublisherClient()

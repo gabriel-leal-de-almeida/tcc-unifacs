@@ -38,7 +38,7 @@ input_path = f"gs://{args.bucket}/data/{args.format}/{execution_id}/"
 
 # Inicializa a SparkSession
 spark = SparkSession.builder \
-    .appName(f"Read {args.format.upper()} Data - {execution_id}") \
+    .appName(f"read-data-{args.format}-{execution_id}") \
     .getOrCreate()
     # .config("spark.eventLog.enabled", "true") \
     # .config("spark.eventLog.dir", f"{event_log_dir}") \
@@ -152,11 +152,11 @@ logger.info(f"Tempo total de execução: {total_duration} segundos")
 
 # Coleta das métricas
 metrics = {
+    "spark_version": spark.version,
+    "python_version": sys.version,
     "execution_id": execution_id,
     "description": description,
     "format": args.format.lower(),
-    "spark_version": spark.version,
-    "python_version": sys.version,
     "input_path": input_path,
     "read_duration_sec": read_duration,
     "count_duration_sec": count_duration,
