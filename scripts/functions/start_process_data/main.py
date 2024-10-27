@@ -30,6 +30,7 @@ def entry_point(event, context):
     batch = {
         "pyspark_batch": {
             "main_python_file_uri": script_uri,
+            "jar_file_uris": ["org.apache.spark:spark-avro_2.12:3.5.3"],
             "args": [
                 "--project", project,
                 "--bucket", bucket,
@@ -37,9 +38,12 @@ def entry_point(event, context):
                 "--compression", compression,
                 "--execution_id", execution_id
             ]
+        },
+        "labels": {
+            "execution_id": execution_id
         }
     }
 
     parent = f"projects/{project}/locations/{region}"
-    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"process-data-{execution_id}"})
+    operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"process-data-{data_format}-{execution_id}"})
     operation.result()

@@ -37,7 +37,6 @@ description = f"Escrita em {args.format.upper()} com compressão {args.compressi
 # Inicializa a SparkSession com event logging habilitado
 spark = SparkSession.builder \
     .appName(f"BigQuery to {args.format.upper()} - {execution_id}") \
-    .config("spark.jars.packages", "org.apache.spark:spark-avro_2.12:3.1.2") \
     .getOrCreate()
     # .config("spark.eventLog.enabled", "true") \
     # .config("spark.eventLog.dir", f"{event_log_dir}") \
