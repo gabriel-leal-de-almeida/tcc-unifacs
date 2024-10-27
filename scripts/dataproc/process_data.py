@@ -29,17 +29,11 @@ execution_id = args.execution_id
 # Descrição da execução
 description = f"Escrita em {args.format.upper()} com compressão {args.compression}"
 
-# string_vazia = ""
-
-# event_log_dir = f"gs://{args.bucket}/spark-event-logs/{execution_id}"
-# logger.info(f"Logs do Spark serão salvos em {event_log_dir}")
-
-# Inicializa a SparkSession com event logging habilitado
+# Inicializa a SparkSession
 spark = SparkSession.builder \
     .appName(f"process-data-{args.format}-{execution_id}") \
+    .config("spark.app.id", f"process-data-{args.format}-{execution_id}") \
     .getOrCreate()
-    # .config("spark.eventLog.enabled", "true") \
-    # .config("spark.eventLog.dir", f"{event_log_dir}") \
 
 # Registro do tempo de início do job
 job_start_time = time.time()

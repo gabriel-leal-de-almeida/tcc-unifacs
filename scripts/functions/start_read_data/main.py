@@ -36,7 +36,11 @@ def entry_point(event, context):
             ]
         },
         "runtime_config": {
-            "version": "2.2"
+            "version": "2.2",
+            "properties": {
+                "spark.eventLog.enabled": "true",
+                "spark.eventLog.dir": f"gs://{bucket}/spark-event-logs/"
+            }
         },
         "labels": {
             "execution_id": execution_id
