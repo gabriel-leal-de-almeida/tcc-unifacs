@@ -1,12 +1,10 @@
-# entry_point.py for process_data
+import base64
+import json
+import os
+import uuid
+from google.cloud import dataproc_v1
 
 def entry_point(event, context):
-    import base64
-    import json
-    import os
-    import uuid
-    from google.cloud import dataproc_v1
-    from google.cloud import pubsub_v1
 
     # Parse Pub/Sub message
     data = base64.b64decode(event['data']).decode('utf-8')
