@@ -70,21 +70,22 @@ resource "google_storage_bucket_object" "start_write_bigquery_functions_script" 
   depends_on = [data.archive_file.start_write_bigquery_functions_script_zip]
 }
 
-# Baixe o JAR do Maven e carregue para o bucket do GCS usando um null_resource
-resource "null_resource" "download_and_upload_spark_avro_jar" {
+# Baixe o JAR do Maven usando um null_resource
+resource "null_resource" "download_spark_avro_jar" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
   provisioner "local-exec" {
-    command = <<EOT
-      curl -L -o /tmp/spark-avro_2.13-3.5.1.jar https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.13/3.5.1/spark-avro_2.13-3.5.1.jar
-      gsutil cp /tmp/spark-avro_2.13-3.5.1.jar gs://${var.bucket_name}/libs/jars/spark-avro_2.13-3.5.1.jar
-    EOT
+    command = "curl -L -o /tmp/spark-avro_2.13-3.5.1.jar https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.13/3.5.1/spark-avro_2.13-3.5.1.jar"
   }
 }
 
-# Recurso fictício para garantir a dependência
+# Carregue o JAR para o bucket do GCS
 resource "google_storage_bucket_object" "spark_avro_jar" {
   name   = "libs/jars/spark-avro_2.13-3.5.1.jar"
   bucket = var.bucket_name
   source = "/tmp/spark-avro_2.13-3.5.1.jar"
 
-  depends_on = [null_resource.download_and_upload_spark_avro_jar]
+  depends_on = [null_resource.download_spark_avro_jar]
 }
