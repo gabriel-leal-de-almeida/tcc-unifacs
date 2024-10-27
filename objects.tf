@@ -78,7 +78,7 @@ resource "null_resource" "download_spark_avro_jar" {
 }
 
 # Carregue o JAR para o bucket do GCS
-resource "google_storage_bucket_object" "my_jar_file" {
+resource "google_storage_bucket_object" "spark_avro_jar" {
   name   = "libs/jars/spark-avro_2.13-3.5.1.jar"
   bucket = var.bucket_name
   source = "/tmp/spark-avro_2.13-3.5.1.jar"
