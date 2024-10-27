@@ -72,6 +72,10 @@ resource "google_storage_bucket_object" "start_write_bigquery_functions_script" 
 
 # Baixe o JAR do Maven usando um null_resource
 resource "null_resource" "download_spark_avro_jar" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
   provisioner "local-exec" {
     command = "curl -L -o /tmp/spark-avro_2.13-3.5.1.jar https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.13/3.5.1/spark-avro_2.13-3.5.1.jar"
   }
