@@ -32,7 +32,6 @@ description = f"Escrita em {args.format.upper()} com compressão {args.compressi
 # Inicializa a SparkSession
 spark = SparkSession.builder \
     .appName(f"process-data-{args.format}-{execution_id}") \
-    .config("spark.app.id", f"process-data-{args.format}-{execution_id}") \
     .getOrCreate()
 
 # Registro do tempo de início do job
