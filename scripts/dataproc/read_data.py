@@ -35,7 +35,6 @@ input_path = f"gs://{args.bucket}/data/{args.format}/{execution_id}/"
 # Inicializa a SparkSession
 spark = SparkSession.builder \
     .appName(f"read-data-{args.format}-{execution_id}") \
-    .config("spark.app.id", f"process-data-{args.format}-{execution_id}") \
     .getOrCreate()
 
 # Registro do tempo de início do job

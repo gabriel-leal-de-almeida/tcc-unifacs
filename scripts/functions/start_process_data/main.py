@@ -42,7 +42,9 @@ def entry_point(event, context):
             "version": "2.2",
             "properties": {
                 "spark.eventLog.enabled": "true",
-                "spark.eventLog.dir": f"gs://{bucket}/spark-event-logs/"
+                "spark.eventLog.dir": f"gs://{bucket}/spark-event-logs/",
+                "spark.executor.instances": "5",
+                "spark.dynamicAllocation.enabled": "false"
             }
         },
         "labels": {
