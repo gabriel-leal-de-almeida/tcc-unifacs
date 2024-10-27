@@ -69,3 +69,19 @@ resource "google_storage_bucket_object" "start_write_bigquery_functions_script" 
   source = "${path.module}/zips/start_write_bigquery.zip"
   depends_on = [data.archive_file.start_write_bigquery_functions_script_zip]
 }
+
+# Baixe o JAR do Maven usando um null_resource
+resource "null_resource" "download_spark_avro_jar" {
+  provisioner "local-exec" {
+    command = "curl -L -o /tmp/spark-avro_2.13-3.5.1.jar https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.13/3.5.1/spark-avro_2.13-3.5.1.jar"
+  }
+}
+
+# Carregue o JAR para o bucket do GCS
+resource "google_storage_bucket_object" "my_jar_file" {
+  name   = "libs/jars/spark-avro_2.13-3.5.1.jar"
+  bucket = var.bucket_name
+  source = "/tmp/spark-avro_2.13-3.5.1.jar"
+
+  depends_on = [null_resource.download_spark_avro_jar]
+}

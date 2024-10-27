@@ -30,7 +30,7 @@ def entry_point(event, context):
     batch = {
         "pyspark_batch": {
             "main_python_file_uri": script_uri,
-            "jar_file_uris": ["org.apache.spark:spark-avro_2.12:3.5.3"],
+            "jar_file_uris": [f"gs://{bucket}/libs/jars/spark-avro_2.13-3.5.1.jar"],
             "args": [
                 "--project", project,
                 "--bucket", bucket,
@@ -38,6 +38,9 @@ def entry_point(event, context):
                 "--compression", compression,
                 "--execution_id", execution_id
             ]
+        },
+        "runtime_config": {
+            "version": "2.2.29"
         },
         "labels": {
             "execution_id": execution_id
