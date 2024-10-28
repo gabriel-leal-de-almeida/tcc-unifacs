@@ -318,9 +318,9 @@ resource "google_bigquery_table" "complete_metrics" {
                 read_data_metrics.job_end_time AS read_data_job_end_time,
                 read_data_metrics.total_duration_sec AS read_data_total_duration_sec
             FROM
-                `${var.project_id}.${google_bigquery_dataset.metrics.dataset_id}.process_data_metrics` AS process_data_metrics
+                ${var.project_id}.${google_bigquery_dataset.metrics.dataset_id}.process_data_metrics AS process_data_metrics
             JOIN
-                `${var.project_id}.${google_bigquery_dataset.metrics.dataset_id}.read_data_metrics` AS read_data_metrics ON
+                ${var.project_id}.${google_bigquery_dataset.metrics.dataset_id}.read_data_metrics AS read_data_metrics ON
                     process_data_metrics.execution_id = read_data_metrics.execution_id
         SQL
     }
