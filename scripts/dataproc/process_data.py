@@ -27,7 +27,10 @@ logger.info(f"Argumentos de linha de comando: {args}")
 execution_id = args.execution_id
 
 # Descrição da execução
-description = f"Escrita em {args.format.upper()} com compressão {args.compression}"
+if args.format.lower() == 'csv':
+    description = f"Escrita em {args.format.upper()} sem compressão"
+else:
+    description = f"Escrita em {args.format.upper()} com compressão {args.compression}"
 
 # Inicializa a SparkSession
 spark = SparkSession.builder \
@@ -58,7 +61,10 @@ logger.info(f"Tempo de avaliação de leitura a partir do BigQuery (origem): {re
 
 # Escrita dos dados no formato especificado
 write_start_time = time.time()
-logger.info(f"Iniciando a escrita dos dados no formato {args.format.upper()} com compressão {args.compression}")
+if args.format.lower() == 'csv':
+    logger.info(f"Iniciando a escrita dos dados no formato {args.format.upper()} sem compressão")
+else:
+    logger.info(f"Iniciando a escrita dos dados no formato {args.format.upper()} com compressão {args.compression}")
 
 # Define o caminho completo de saída incluindo o ID de execução
 output_full_path = f"gs://{args.bucket}/data/{args.format.lower()}/{execution_id}"
@@ -67,7 +73,6 @@ if args.format.lower() == 'csv':
     # Para CSV, a compressão é definida na opção 'codec'
     df.write \
         .option("header", "true") \
-        .option("codec", args.compression) \
         .mode("overwrite") \
         .csv(output_full_path)
 else:
