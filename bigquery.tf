@@ -225,10 +225,10 @@ resource "google_bigquery_table" "read_data_metrics" {
             description = "O tempo de ordenação dos dados em segundos."
         },
         {
-            name = "select_columns_duration_sec"
+            name = "select_columns_concat_duration_sec"
             type = "FLOAT"
             mode = "NULLABLE"
-            description = "O tempo de seleção das colunas em segundos."
+            description = "O tempo de seleção das colunas com concatenção de dados e contagem das linhas distintas em segundos."
         },
         {
             name = "time_range_filter_duration_sec"

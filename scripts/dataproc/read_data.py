@@ -99,18 +99,18 @@ logger.info(f"Total de registros após filtragem: {filtered_count}")
 # Realiza uma ordenação
 sort_start_time = time.time()
 sorted_df = df.orderBy(F.desc("block_timestamp"))
-sorted_df.limit(int(0.01*record_count)).collect()
+sorted_df.head(1)
 sort_end_time = time.time()
 sort_duration = sort_end_time - sort_start_time
 logger.info(f"Ordenação concluída em {sort_duration} segundos")
 
 # Realiza a seleção de colunas específicas
-select_columns_start_time = time.time()
-select_columns_df = df.select("block_timestamp", "fee", "is_coinbase")
-select_columns_df.limit(int(0.01*record_count)).collect()
-select_columns_end_time = time.time()
-select_columns_read_duration = select_columns_end_time - select_columns_start_time
-logger.info(f"Leitura de colunas específicas concluída em {select_columns_read_duration} segundos")
+select_columns_concat_start_time = time.time()
+select_columns_concat_df = df.select("block_hash", "block_number", "block_timestamp")
+select_columns_concat_df.withColumn("concat_values", F.concat_ws("_", "block_hash", "block_number", "block_timestamp")).select("concat_values").distinct().count()
+select_columns_concat_end_time = time.time()
+select_columns_concat_read_duration = select_columns_concat_end_time - select_columns_concat_start_time
+logger.info(f"Leitura de colunas específicas utilizando concatenação e distinct concluída em {select_columns_concat_read_duration} segundos")
 
 # Realiza a filtragem por intervalo de tempo
 time_range_filter_start_time = time.time()
@@ -151,7 +151,7 @@ metrics = {
     "filtered_count": filtered_count,
     "filter_duration_sec": filter_duration,
     "sort_duration_sec": sort_duration,
-    "select_columns_duration_sec": select_columns_read_duration,
+    "select_columns_concat_duration_sec": select_columns_concat_read_duration,
     "time_range_filter_duration_sec": time_range_filter_duration,
     "numeric_filter_duration_sec": numeric_filter_duration,
     "job_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_start_time)),
