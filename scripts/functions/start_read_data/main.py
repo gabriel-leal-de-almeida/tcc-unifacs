@@ -39,8 +39,14 @@ def entry_point(event, context):
             "properties": {
                 "spark.eventLog.enabled": "true",
                 "spark.eventLog.dir": f"gs://{bucket}/spark-event-logs/",
+                "spark.dynamicAllocation.enabled": "false",
                 "spark.executor.instances": "5",
-                "spark.dynamicAllocation.enabled": "false"
+                "spark.dataproc.driver.disk.size": "250g",
+                "spark.driver.memory": "20g",
+                "spark.driver.cores": "4",
+                "spark.dataproc.executor.disk.size": "250g",
+                "spark.executor.memory": "20g",
+                "spark.executor.cores": "4"
             }
         },
         "labels": {
@@ -49,6 +55,6 @@ def entry_point(event, context):
     }
 
     parent = f"projects/{project}/locations/{region}"
-    time.sleep(60) # Aguarda 60s para garantir que o job anterior tenha terminado
+    time.sleep(300) # Aguarda 300s para garantir que os recursos do job anterior sejam liberados
     operation = client.create_batch(request={"parent": parent, "batch": batch, "batch_id": f"read-data-{data_format}-{execution_id}"})
     operation.result()

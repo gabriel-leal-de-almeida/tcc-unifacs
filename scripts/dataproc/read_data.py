@@ -61,16 +61,16 @@ count_start_time = time.time()
 record_count = df.count()
 count_end_time = time.time()
 count_duration = count_end_time - count_start_time
-logger.info(f"Contagem de registros concluída em {count_duration} segundos")
 logger.info(f"Total de registros lidos: {record_count}")
+logger.info(f"Contagem de registros concluída em {count_duration} segundos")
 
 # Realiza a contagem de registros distintos
 distinct_count_start_time = time.time()
 distinct_count = df.distinct().count()
 distinct_count_end_time = time.time()
 distinct_count_duration = distinct_count_end_time - distinct_count_start_time
-logger.info(f"Contagem de registros distintos concluída em {distinct_count_duration} segundos")
 logger.info(f"Total de registros distintos: {distinct_count}")
+logger.info(f"Contagem de registros distintos concluída em {distinct_count_duration} segundos")
 
 # Realiza uma agregação
 aggregation_start_time = time.time()
@@ -81,9 +81,10 @@ aggregated_df = df.groupBy("block_timestamp_month", "is_coinbase") \
         F.count("*").alias("quantidade_de_linhas"),
         F.sum("fee").alias("soma_fee")
     )
-aggregated_df.show(100, False)
+aggregated_df_count = aggregated_df.count()
 aggregation_end_time = time.time()
 aggregation_duration = aggregation_end_time - aggregation_start_time
+logger.info(f"Total de registros após agregação: {aggregated_df_count}")
 logger.info(f"Agregação concluída em {aggregation_duration} segundos")
 
 # Realiza uma filtragem
@@ -98,46 +99,36 @@ logger.info(f"Total de registros após filtragem: {filtered_count}")
 # Realiza uma ordenação
 sort_start_time = time.time()
 sorted_df = df.orderBy(F.desc("block_timestamp"))
-sorted_df.show(100, False)
+sorted_df.limit(0.01*record_count).collect()
 sort_end_time = time.time()
 sort_duration = sort_end_time - sort_start_time
 logger.info(f"Ordenação concluída em {sort_duration} segundos")
 
-# Realiza uma junção
-join_start_time = time.time()
-df1 = df.select("block_timestamp", "block_timestamp_month", "fee")
-df2 = df.select("block_timestamp", "is_coinbase")
-joined_df = df1.join(df2, "block_timestamp")
-joined_df.show(100, False)
-join_end_time = time.time()
-join_duration = join_end_time - join_start_time
-logger.info(f"Junção concluída em {join_duration} segundos")
+# Realiza a seleção de colunas específicas
+select_columns_start_time = time.time()
+select_columns_df = df.select("block_timestamp", "fee", "is_coinbase")
+select_columns_df.limit(0.01*record_count).collect()
+select_columns_end_time = time.time()
+select_columns_read_duration = select_columns_end_time - select_columns_start_time
+logger.info(f"Leitura de colunas específicas concluída em {select_columns_read_duration} segundos")
 
-# Registo do tempo de uma operação de amostragem com ordenação
-sample_start_time = time.time()
-sample_df = df.sample(False, 0.1).orderBy(F.desc("block_timestamp"))
-sample_df.show(100, False)
-sample_end_time = time.time()
-sample_duration = sample_end_time - sample_start_time
-logger.info(f"Amostragem com ordenação concluída em {sample_duration} segundos")
+# Realiza a filtragem por intervalo de tempo
+time_range_filter_start_time = time.time()
+filtered_by_date_df = df.filter((df.block_timestamp_month >= "2023-01-01") & (df.block_timestamp_month < "2023-03-01"))
+filtered_by_date_df_count = filtered_by_date_df.count()
+time_range_filter_end_time = time.time()
+time_range_filter_duration = time_range_filter_end_time - time_range_filter_start_time
+logger.info(f"Quantidade de registros após filtragem por intervalo de tempo: {filtered_by_date_df_count}")
+logger.info(f"Filtragem por intervalo de tempo concluída em {time_range_filter_duration} segundos")
 
-# Registro de um union do mesmo DataFrame duas vezes
-union_start_time = time.time()
-union_df = df.union(df)
-union_df.show(100, False)
-union_end_time = time.time()
-union_duration = union_end_time - union_start_time
-logger.info(f"União do DataFrame consigo mesmo concluída em {union_duration} segundos")
-
-# Registro de um intersect do mesmo DataFrame duas vezes após amostragem
-intersect_start_time = time.time()
-sample_df1 = df.sample(False, 0.1)
-sample_df2 = df.sample(False, 0.1)
-intersect_df = sample_df1.intersect(sample_df2)
-intersect_df.show(100, False)
-intersect_end_time = time.time()
-intersect_duration = intersect_end_time - intersect_start_time
-logger.info(f"Intersecção dos DataFrames após amostragem concluída em {intersect_duration} segundos")
+# Leitura com filtro numérico (filtra apenas valores pares)
+numeric_filter_start_time = time.time()
+numeric_filtered_df = df.filter(df.block_number % 2 == 0)
+numeric_filtered_df_count = numeric_filtered_df.count()
+numeric_filter_end_time = time.time()
+numeric_filter_duration = numeric_filter_end_time - numeric_filter_start_time
+logger.info(f"Quantidade de registros após filtragem numérica: {numeric_filtered_df_count}")
+logger.info(f"Filtragem numérica concluída em {numeric_filter_duration} segundos")
 
 # Registro do tempo total de execução
 job_end_time = time.time()
@@ -160,10 +151,9 @@ metrics = {
     "filtered_count": filtered_count,
     "filter_duration_sec": filter_duration,
     "sort_duration_sec": sort_duration,
-    "join_duration_sec": join_duration,
-    "sample_duration_sec": sample_duration,
-    "union_duration_sec": union_duration,
-    "intersect_duration_sec": intersect_duration,
+    "select_columns_duration_sec": select_columns_read_duration,
+    "time_range_filter_duration_sec": time_range_filter_duration,
+    "numeric_filter_duration_sec": numeric_filter_duration,
     "job_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_start_time)),
     "job_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_end_time)),
     "total_duration_sec": total_duration,
