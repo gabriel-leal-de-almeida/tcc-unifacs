@@ -128,7 +128,7 @@ resource "google_bigquery_table" "process_data_metrics" {
     external_data_configuration {
         autodetect = false
         source_format = "NEWLINE_DELIMITED_JSON"
-        source_uris = ["gs://${args.bucket}/metrics/process-data/*.json"]
+        source_uris = ["gs://${args.bucket_name}/metrics/process-data/*.json"]
     }
 }
 
