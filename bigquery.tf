@@ -13,7 +13,7 @@ resource "google_bigquery_table" "process_data_metrics" {
     dataset_id = google_bigquery_dataset.metrics.dataset_id
     table_id = "process_data_metrics"
     project = var.project_id
-    deletion_protection = false
+    deletion_protection = true
 
     schema = jsonencode([
         {
@@ -137,7 +137,7 @@ resource "google_bigquery_table" "read_data_metrics" {
     dataset_id = google_bigquery_dataset.metrics.dataset_id
     table_id = "read_data_metrics"
     project = var.project_id
-    deletion_protection = false
+    deletion_protection = true
 
     schema = jsonencode([
         {
@@ -266,5 +266,62 @@ resource "google_bigquery_table" "read_data_metrics" {
         autodetect = false
         source_format = "NEWLINE_DELIMITED_JSON"
         source_uris = ["gs://${var.bucket_name}/metrics/read-data/*.json"]
+    }
+}
+
+# Create complete_metrics view that JOINs process_data_metrics and read_data_metrics on execution_id and adds the prefix 'process_data_' to the columns of process_data_metrics and the prefix 'read_data_' to the columns of read_data_metrics.
+resource "google_bigquery_table" "complete_metrics" {
+    dataset_id = google_bigquery_dataset.metrics.dataset_id
+    table_id = "complete_metrics"
+    project = var.project_id
+    deletion_protection = true
+
+    view {
+        query = <<-SQL
+            SELECT
+                process_data_metrics.spark_version AS process_data_spark_version,
+                process_data_metrics.python_version AS process_data_python_version,
+                process_data_metrics.execution_id AS process_data_execution_id,
+                process_data_metrics.description AS process_data_description,
+                process_data_metrics.format AS process_data_format,
+                process_data_metrics.compression AS process_data_compression,
+                process_data_metrics.output_path AS process_data_output_path,
+                process_data_metrics.read_duration_sec AS process_data_read_duration_sec,
+                process_data_metrics.write_duration_sec AS process_data_write_duration_sec,
+                process_data_metrics.job_start_time AS process_data_job_start_time,
+                process_data_metrics.job_end_time AS process_data_job_end_time,
+                process_data_metrics.total_duration_sec AS process_data_total_duration_sec,
+                process_data_metrics.size_in_bytes AS process_data_size_in_bytes,
+                process_data_metrics.num_files AS process_data_num_files,
+                process_data_metrics.avg_file_size_bytes AS process_data_avg_file_size_bytes,
+                process_data_metrics.metric_colletor_start_time AS process_data_metric_colletor_start_time,
+                process_data_metrics.metric_colletor_end_time AS process_data_metric_colletor_end_time,
+                process_data_metrics.metric_colletor_duration_sec AS process_data_metric_colletor_duration_sec,
+                read_data_metrics.spark_version AS read_data_spark_version,
+                read_data_metrics.python_version AS read_data_python_version,
+                read_data_metrics.execution_id AS read_data_execution_id,
+                read_data_metrics.description AS read_data_description,
+                read_data_metrics.format AS read_data_format,
+                read_data_metrics.input_path AS read_data_input_path,
+                read_data_metrics.read_duration_sec AS read_data_read_duration_sec,
+                read_data_metrics.count_duration_sec AS read_data_count_duration_sec,
+                read_data_metrics.record_count AS read_data_record_count,
+                read_data_metrics.distinct_count AS read_data_distinct_count,
+                read_data_metrics.aggregation_duration_sec AS read_data_aggregation_duration_sec,
+                read_data_metrics.filtered_count AS read_data_filtered_count,
+                read_data_metrics.filter_duration_sec AS read_data_filter_duration_sec,
+                read_data_metrics.sort_duration_sec AS read_data_sort_duration_sec,
+                read_data_metrics.select_columns_concat_duration_sec AS read_data_select_columns_concat_duration_sec,
+                read_data_metrics.time_range_filter_duration_sec AS read_data_time_range_filter_duration_sec,
+                read_data_metrics.numeric_filter_duration_sec AS read_data_numeric_filter_duration_sec,
+                read_data_metrics.job_start_time AS read_data_job_start_time,
+                read_data_metrics.job_end_time AS read_data_job_end_time,
+                read_data_metrics.total_duration_sec AS read_data_total_duration_sec
+            FROM
+                `${var.project_id}.${google_bigquery_dataset.metrics.dataset_id}.process_data_metrics` AS process_data_metrics
+            JOIN
+                `${var.project_id}.${google_bigquery_dataset.metrics.dataset_id}.read_data_metrics` AS read_data_metrics ON
+                    process_data_metrics.execution_id = read_data_metrics.execution_id
+        SQL
     }
 }
