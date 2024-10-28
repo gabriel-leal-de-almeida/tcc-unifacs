@@ -43,7 +43,7 @@ resource "google_cloud_scheduler_job" "start_write_bigquery" {
   pubsub_target {
     topic_name = google_pubsub_topic.write_bigquery_topic.id
     data       = base64encode(jsonencode({
-      "query" : "SELECT `hash`, `size`, `virtual_size`, `version`, `lock_time`, `block_hash`, `block_number`, `block_timestamp`, `block_timestamp_month`, `input_count`, `output_count`, `input_value`, `output_value`, `is_coinbase`, `fee` FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month > DATE('2019-12-31') AND block_timestamp_month < DATE('2024-10-01')"
+      "query" : "SELECT `hash`, `size`, `virtual_size`, `version`, `lock_time`, `block_hash`, `block_number`, `block_timestamp`, `block_timestamp_month`, `input_count`, `output_count`, `input_value`, `output_value`, `is_coinbase`, `fee` FROM `bigquery-public-data.crypto_bitcoin.transactions` WHERE block_timestamp_month > DATE('2020-12-31') AND block_timestamp_month < DATE('2024-10-01')"
     }))
   }
 }
