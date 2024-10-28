@@ -99,7 +99,7 @@ logger.info(f"Total de registros após filtragem: {filtered_count}")
 # Realiza uma ordenação
 sort_start_time = time.time()
 sorted_df = df.orderBy(F.desc("block_timestamp"))
-sorted_df.limit(0.01*record_count).collect()
+sorted_df.limit(int(0.01*record_count)).collect()
 sort_end_time = time.time()
 sort_duration = sort_end_time - sort_start_time
 logger.info(f"Ordenação concluída em {sort_duration} segundos")
@@ -107,7 +107,7 @@ logger.info(f"Ordenação concluída em {sort_duration} segundos")
 # Realiza a seleção de colunas específicas
 select_columns_start_time = time.time()
 select_columns_df = df.select("block_timestamp", "fee", "is_coinbase")
-select_columns_df.limit(0.01*record_count).collect()
+select_columns_df.limit(int(0.01*record_count)).collect()
 select_columns_end_time = time.time()
 select_columns_read_duration = select_columns_end_time - select_columns_start_time
 logger.info(f"Leitura de colunas específicas concluída em {select_columns_read_duration} segundos")
