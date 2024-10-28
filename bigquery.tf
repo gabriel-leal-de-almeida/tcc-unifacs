@@ -101,7 +101,7 @@ resource "google_bigquery_table" "process_data_metrics" {
         },
         {
             name = "avg_file_size_bytes"
-            type = "INTEGER"
+            type = "FLOAT"
             mode = "NULLABLE"
             description = "O tamanho médio dos arquivos escritos no GCS."
         },
