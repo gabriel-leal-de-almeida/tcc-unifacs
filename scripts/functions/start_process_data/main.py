@@ -41,8 +41,14 @@ def entry_point(event, context):
             "properties": {
                 "spark.eventLog.enabled": "true",
                 "spark.eventLog.dir": f"gs://{bucket}/spark-event-logs/",
+                "spark.dynamicAllocation.enabled": "false",
                 "spark.executor.instances": "5",
-                "spark.dynamicAllocation.enabled": "false"
+                "spark.dataproc.driver.disk.size": "250g",
+                "spark.driver.memory": "20g",
+                "spark.driver.cores": "4",
+                "spark.dataproc.executor.disk.size": "250g",
+                "spark.executor.memory": "20g",
+                "spark.executor.cores": "4"
             }
         },
         "labels": {
