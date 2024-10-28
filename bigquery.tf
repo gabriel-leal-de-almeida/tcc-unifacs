@@ -2,8 +2,6 @@ resource "google_bigquery_dataset" "metrics" {
     dataset_id = "metrics"
     project = var.project_id
     location = var.region
-    default_table_expiration_ms = 3600000
-    default_partition_expiration_ms = 3600000
     labels = {
         terraform = "true"
     }
@@ -138,6 +136,7 @@ resource "google_bigquery_table" "read_data_metrics" {
     table_id = "read_data_metrics"
     project = var.project_id
     deletion_protection = true
+
 
     schema = jsonencode([
         {
