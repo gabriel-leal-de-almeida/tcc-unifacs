@@ -16,7 +16,7 @@ locals {
     }
     csv = {
       format       = "csv"
-      compression  = "gzip"
+      compression  = ""
     }
   }
 }
