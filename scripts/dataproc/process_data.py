@@ -145,7 +145,7 @@ metrics = {
     "job_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(job_end_time)),
     "total_duration_sec": total_duration,
     "size_in_bytes": size_in_bytes,
-    "num_files": num_files,
+    "num_files": (num_files - 2),
     "avg_file_size_bytes": avg_file_size,
     "metric_colletor_start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metric_collector_start_time)),
     "metric_colletor_end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metric_collector_end_time)),
