@@ -13,6 +13,7 @@ resource "google_bigquery_table" "process_data_metrics" {
     dataset_id = google_bigquery_dataset.metrics.dataset_id
     table_id = "process_data_metrics"
     project = var.project_id
+    deletion_protection = false
 
     schema = jsonencode([
         {
