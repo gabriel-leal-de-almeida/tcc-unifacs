@@ -315,12 +315,30 @@ resource "google_bigquery_table" "complete_metrics" {
                 read_data_metrics.numeric_filter_duration_sec AS read_data_numeric_filter_duration_sec,
                 read_data_metrics.job_start_time AS read_data_job_start_time,
                 read_data_metrics.job_end_time AS read_data_job_end_time,
-                read_data_metrics.total_duration_sec AS read_data_total_duration_sec
+                read_data_metrics.total_duration_sec AS read_data_total_duration_sec,
+                billing_data.total_cost AS billing_cost,
+                billing_data.currency AS billing_currency
             FROM
                 ${var.project_id}.metrics.process_data_metrics AS process_data_metrics
             JOIN
                 ${var.project_id}.metrics.read_data_metrics AS read_data_metrics ON
                     process_data_metrics.execution_id = read_data_metrics.execution_id
+            LEFT JOIN
+                (
+                SELECT
+                    execution_label.value AS execution_id,
+                    SUM(t.cost) AS total_cost,
+                    ANY_VALUE(t.currency) AS currency
+                FROM
+                    ${var.project_id}.metrics.gcp_billing_export_resource_v1_01D614_A5D305_2E8B57 AS t,
+                    UNNEST(t.labels) AS execution_label
+                WHERE
+                    execution_label.key = 'execution_id'
+                    AND UPPER(t.service.description) = 'DATAPROC'
+                GROUP BY
+                    execution_label.value
+                ) AS billing_data
+                ON process_data_metrics.execution_id = billing_data.execution_id
         EOF
 
         use_legacy_sql = false
